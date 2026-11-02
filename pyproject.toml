@@ -1,0 +1,37 @@
+[project]
+name = "wedding-rsvp"
+version = "1.0.0"
+description = "Wedding invitation and RSVP site"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "django>=5.2,<5.3",
+    "whitenoise>=6.7",
+    "dj-database-url>=2.2",
+    "python-dotenv>=1.0",
+    "pillow>=11.0",
+]
+
+[dependency-groups]
+dev = [
+    "numpy>=2.5.4",
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "ruff>=0.8",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+addopts = "-q"
+filterwarnings = ["ignore:No directory at:UserWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ"]

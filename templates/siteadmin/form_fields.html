@@ -1,0 +1,2 @@
+{% if form.non_field_errors %}<div class="error-summary" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+{% for field in form %}{% include "siteadmin/field.html" %}{% endfor %}

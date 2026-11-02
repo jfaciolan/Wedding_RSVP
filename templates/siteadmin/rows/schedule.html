@@ -1,0 +1,2 @@
+<span class="tag">{% if item.time %}{{ item.time|time:"g:i A" }}{% else %}No time{% endif %}</span>
+<strong>{{ item.title }}</strong>{% if item.subtitle %}<span class="muted"> · {{ item.subtitle }}</span>{% endif %}

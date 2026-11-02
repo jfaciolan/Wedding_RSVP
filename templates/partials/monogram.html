@@ -1,0 +1,10 @@
+{% load static %}{# Usage: include with size="hero|nav|footer|page" and optional decorative=True #}
+<picture class="monogram monogram--{{ size }}">
+  {% if size == "nav" or size == "footer" %}
+  <source srcset="{% static 'img/monogram-sm.webp' %}" type="image/webp">
+  <img src="{% static 'img/monogram-sm.png' %}" width="197" height="200" alt="{% if decorative %}{% else %}{% if wedding.couple_names %}{{ wedding.couple_names }} monogram{% else %}Wedding monogram{% endif %}{% endif %}">
+  {% else %}
+  <source srcset="{% static 'img/monogram.webp' %}" type="image/webp">
+  <img src="{% static 'img/monogram.png' %}" width="591" height="600" alt="{% if decorative %}{% else %}{% if wedding.couple_names %}{{ wedding.couple_names }} monogram{% else %}Wedding monogram{% endif %}{% endif %}"{% if size == "hero" %} fetchpriority="high"{% else %} loading="lazy"{% endif %}>
+  {% endif %}
+</picture>

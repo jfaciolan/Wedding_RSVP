@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block body_class %}page{% endblock %}
+{% block body %}
+<main id="main" class="page__main">
+  <div class="page__card">
+    {% include "partials/monogram.html" with size="page" %}
+    {% block page_content %}{% endblock %}
+  </div>
+</main>
+{% endblock %}

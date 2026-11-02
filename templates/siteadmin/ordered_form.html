@@ -1,0 +1,16 @@
+{% extends "siteadmin/base.html" %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{% if pk %}Edit{% else %}Add{% endif %} {{ config.singular }}</h1>
+  <a class="link" href="{{ back_url }}">← Back to {{ config.title }}</a>
+</div>
+<form method="post" class="card form" novalidate>
+  {% csrf_token %}
+  {% if form.errors %}<div class="error-summary" role="alert">Please fix the errors below.</div>{% endif %}
+  {% include "siteadmin/form_fields.html" %}
+  <div class="form__actions">
+    <button class="btn btn--primary" type="submit">Save</button>
+    <a class="btn btn--ghost" href="{{ back_url }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "partials/simple_page.html" %}
+{% block title %}RSVPs are closed{% endblock %}
+{% block page_content %}
+  <p class="eyebrow">Kindly reply</p>
+  <h1 class="section-title">RSVPs are now closed</h1>
+  <p class="lead">Thank you so much for your interest. Our guest list is now final. If you need to reach us, please contact us directly.</p>
+  <div class="page__actions">
+    <a class="btn btn--secondary" href="{% url 'wedding:home' %}">Back to the invitation</a>
+  </div>
+{% endblock %}

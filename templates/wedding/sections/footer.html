@@ -1,0 +1,8 @@
+<footer class="footer">
+  <div class="container">
+    {% include "partials/monogram.html" with size="footer" decorative=True %}
+    <p class="footer__names">{% include "partials/couple_names.html" %}</p>
+    <p class="date-line">{{ wedding.wedding_datetime|date:"F j, Y" }}</p>
+    {% if wedding.footer_message %}<p class="italic-line">{{ wedding.footer_message }}</p>{% endif %}
+  </div>
+</footer>

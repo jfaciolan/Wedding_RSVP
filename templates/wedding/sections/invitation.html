@@ -1,0 +1,7 @@
+<section class="section invitation" aria-labelledby="invitation-title">
+  <div class="container">
+    <p class="eyebrow" id="invitation-title">An Invitation</p>
+    {% if wedding.invitation_headline %}<h2 class="invitation__headline">{{ wedding.invitation_headline }}</h2>{% endif %}
+    {% if wedding.invitation_message %}<div class="invitation__message">{{ wedding.invitation_message|linebreaks }}</div>{% endif %}
+  </div>
+</section>

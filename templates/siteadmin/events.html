@@ -1,0 +1,17 @@
+{% extends "siteadmin/base.html" %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ title }}</h1></div>
+<p class="intro">A card is shown on the public page once it has a time or a venue name. Times are Philippine time.</p>
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div class="grid-2">
+    {% for label, form in event_forms %}
+    <section class="card form" aria-labelledby="event-{{ forloop.counter }}">
+      <h2 class="card-title" id="event-{{ forloop.counter }}">{{ label }}</h2>
+      {% include "siteadmin/form_fields.html" %}
+    </section>
+    {% endfor %}
+  </div>
+  <div class="form__actions"><button class="btn btn--primary" type="submit">Save</button></div>
+</form>
+{% endblock %}

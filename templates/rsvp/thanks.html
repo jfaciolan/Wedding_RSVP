@@ -1,0 +1,31 @@
+{% extends "partials/simple_page.html" %}
+{% block title %}Thank you{% if wedding.couple_names %} · {{ wedding.couple_names }}{% endif %}{% endblock %}
+{% block page_content %}
+  <p class="eyebrow">Reply received</p>
+  <h1 class="section-title">Thank you, {{ rsvp.full_name }}</h1>
+  {% if rsvp.attending %}
+  <p class="lead italic-line">We can't wait to celebrate with you.</p>
+  {% else %}
+  <p class="lead italic-line">We'll miss you, and we're grateful you let us know.</p>
+  {% endif %}
+
+  <div class="summary">
+    <h2 class="visually-hidden">Your answer</h2>
+    <dl>
+      <dt>Attending</dt><dd>{% if rsvp.attending %}Joyfully accepts{% else %}Regretfully declines{% endif %}</dd>
+      {% if rsvp.attending %}<dt>Guests</dt><dd>{{ rsvp.guests }}{% if rsvp.guests == 1 %} (just you){% else %}, including you{% endif %}</dd>{% endif %}
+      {% if rsvp.mobile %}<dt>Mobile</dt><dd>{{ rsvp.mobile }}</dd>{% endif %}
+      {% if rsvp.messenger %}<dt>Messenger</dt><dd>{{ rsvp.messenger }}</dd>{% endif %}
+      {% if rsvp.email %}<dt>Email</dt><dd>{{ rsvp.email }}</dd>{% endif %}
+      {% if rsvp.dietary %}<dt>Dietary needs</dt><dd>{{ rsvp.dietary }}</dd>{% endif %}
+      {% if rsvp.note %}<dt>Your note</dt><dd>{{ rsvp.note|linebreaksbr }}</dd>{% endif %}
+    </dl>
+  </div>
+
+  {% if rsvp_open %}
+  <p class="lead small">Need to change something? Reply again{% if rsvp_settings.deadline %} before {{ rsvp_settings.deadline|date:"F j, Y" }}, {{ rsvp_settings.deadline|time:"g:i A" }}{% endif %}{% if not rsvp.invitation %} with the same name and mobile or Messenger{% endif %}.</p>
+  {% endif %}
+  <div class="page__actions">
+    <a class="btn btn--secondary" href="{% url 'wedding:home' %}">Back to the invitation</a>
+  </div>
+{% endblock %}

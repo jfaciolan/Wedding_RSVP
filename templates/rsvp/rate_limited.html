@@ -1,0 +1,10 @@
+{% extends "partials/simple_page.html" %}
+{% block title %}Please wait a moment{% endblock %}
+{% block page_content %}
+  <p class="eyebrow">Kindly reply</p>
+  <h1 class="section-title">Please wait a moment</h1>
+  <p class="lead">We've received several replies from your connection in a short time. Please try again in a few minutes.</p>
+  <div class="page__actions">
+    <a class="btn btn--secondary" href="{% url 'wedding:home' %}">Back to the invitation</a>
+  </div>
+{% endblock %}

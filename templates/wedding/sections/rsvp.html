@@ -1,0 +1,93 @@
+<section class="section rsvp" id="rsvp" aria-labelledby="rsvp-title">
+  <div class="container">
+    {% if rsvp_open and rsvp_settings.deadline %}
+    <p class="eyebrow">Kindly reply by {{ rsvp_settings.deadline|date:"F j, Y" }}</p>
+    {% else %}
+    <p class="eyebrow">Kindly reply</p>
+    {% endif %}
+    <h2 class="section-title" id="rsvp-title">Will you join us?</h2>
+
+    {% if rsvp_open %}
+    <p class="rsvp__intro">Let us know whether you can celebrate with us. It only takes a minute.</p>
+    <div class="form-card">
+      {% if invitation %}
+      <p class="invite-banner">Replying for <strong>{{ invitation.label }}</strong>{% if form.instance.pk %} · we have your earlier reply below; send again to update it{% endif %}.</p>
+      {% endif %}
+      <form method="post" action="{% url 'rsvp:submit' %}#rsvp" novalidate data-rsvp-form>
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="error-summary" role="alert" tabindex="-1" data-error-summary>
+          {% if form.non_field_errors %}{{ form.non_field_errors|first }}{% elif form.website.errors %}{{ form.website.errors|first }}{% else %}Please check the highlighted fields below.{% endif %}
+        </div>
+        {% endif %}
+
+        {% include "partials/field.html" with field=form.full_name %}
+
+        <fieldset>
+          <legend>How can we reach you?</legend>
+          <p class="hint">A mobile number or Messenger, at least one, so we can tell you about any changes.</p>
+          <div class="field-group">
+            {% include "partials/field.html" with field=form.mobile %}
+            {% include "partials/field.html" with field=form.messenger hint="Your username or m.me / profile link." %}
+            {% include "partials/field.html" with field=form.email optional=True %}
+          </div>
+        </fieldset>
+
+        <fieldset{% if form.attending.errors %} aria-describedby="id_attending_error"{% endif %}>
+          <legend>{{ form.attending.label }}</legend>
+          <div class="radio-cards">
+            {% for radio in form.attending %}
+            <label class="radio-card" for="{{ radio.id_for_label }}">
+              {{ radio.tag }}
+              <span>{{ radio.choice_label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% if form.attending.errors %}<p class="error" id="id_attending_error">{{ form.attending.errors|first }}</p>{% endif %}
+        </fieldset>
+
+        <div class="field" data-guests-field>
+          <label class="label" for="{{ form.guests.id_for_label }}">{{ form.guests.label }}</label>
+          <div class="stepper" data-stepper>
+            <button class="stepper__btn" type="button" data-step="-1" aria-controls="{{ form.guests.id_for_label }}">
+              <span aria-hidden="true">−</span><span class="visually-hidden">Fewer guests</span>
+            </button>
+            <input class="stepper__value" type="number" inputmode="numeric" name="{{ form.guests.html_name }}" id="{{ form.guests.id_for_label }}"
+                   value="{{ form.guests.value|default_if_none:1 }}" min="1" max="{{ max_guests }}" step="1"
+                   aria-describedby="guests_hint{% if form.guests.errors %} id_guests_error{% endif %}"{% if form.guests.errors %} aria-invalid="true"{% endif %}>
+            <button class="stepper__btn" type="button" data-step="1" aria-controls="{{ form.guests.id_for_label }}">
+              <span aria-hidden="true">+</span><span class="visually-hidden">More guests</span>
+            </button>
+          </div>
+          <p class="visually-hidden" aria-live="polite" data-stepper-status></p>
+          <p class="hint" id="guests_hint">{% if max_guests == 1 %}Just you on this invitation.{% else %}Including yourself. Up to {{ max_guests }} guests{% if invitation %} on this invitation{% endif %}.{% endif %}</p>
+          {% if form.guests.errors %}<p class="error" id="id_guests_error">{{ form.guests.errors|first }}</p>{% endif %}
+        </div>
+
+        {% include "partials/field.html" with field=form.dietary %}
+        {% include "partials/field.html" with field=form.note %}
+
+        <div class="honeypot" aria-hidden="true">
+          <label for="{{ form.website.id_for_label }}">{{ form.website.label }}</label>
+          {{ form.website }}
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn--primary btn--wide" type="submit">Send my reply</button>
+        </div>
+        {% if rsvp_settings.deadline %}
+        <p class="form-note">Need to change your answer? Reply again before {{ rsvp_settings.deadline|date:"F j, Y" }}, {{ rsvp_settings.deadline|time:"g:i A" }}.</p>
+        {% else %}
+        <p class="form-note">Need to change your answer? Just reply again.</p>
+        {% endif %}
+        {% if rsvp_settings.privacy_text %}<p class="privacy">{{ rsvp_settings.privacy_text }}</p>{% endif %}
+      </form>
+    </div>
+    {% else %}
+    <div class="form-card form-card--message">
+      <h3 class="sub-heading">RSVPs are now closed</h3>
+      <p>Thank you so much for your interest. Our guest list is now final. If you need to reach us, please contact us directly.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>

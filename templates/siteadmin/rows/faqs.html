@@ -1,0 +1,3 @@
+<strong>{{ item.question }}</strong>
+{% if not item.is_published %}<span class="badge badge--muted">Hidden</span>{% endif %}
+<p class="muted clamp">{{ item.answer|truncatechars:140 }}</p>

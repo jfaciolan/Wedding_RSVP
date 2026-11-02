@@ -1,0 +1,58 @@
+{
+  "_about": "Content from the design (assets/Web Page.pdf). Load with: uv run python manage.py load_design_defaults. Bracketed placeholders in the design are left out; fill them in the Site Admin.",
+  "wedding": {
+    "groom_short_name": "John Rey",
+    "bride_short_name": "Marian Grace",
+    "groom_full_name": "John Rey S. Faciolan",
+    "bride_full_name": "Marian Grace D. De La Torre",
+    "families_line": "Together with their families",
+    "invitation_line": "invite you to celebrate their wedding",
+    "wedding_datetime": "2027-01-05T14:00:00+08:00",
+    "invitation_headline": "With joyful hearts, we invite you to share in the beginning of our forever.",
+    "invitation_message": "Your presence is the greatest gift we could ask for. Please find everything you need below, and kindly let us know if you can join us.",
+    "footer_message": "We can’t wait to celebrate with you."
+  },
+  "events": {
+    "ceremony": {
+      "time": "14:00",
+      "date": "2027-01-05",
+      "venue_name": "Open Door Bible Baptist Church Sagay",
+      "address": "Brgy Poblacion 1, Charmaine Village\nSagay City, 6122 Negros Occidental",
+      "city": "Sagay City"
+    },
+    "reception": {
+      "date": "2027-01-05"
+    }
+  },
+  "schedule": [
+    {"time": null, "title": "Guests arrive", "subtitle": "Please be seated a little early."},
+    {"time": "14:00", "title": "The ceremony", "subtitle": "Open Door Bible Baptist Church Sagay"},
+    {"time": null, "title": "Cocktails & canapés", "subtitle": ""},
+    {"time": null, "title": "Dinner & dancing", "subtitle": ""}
+  ],
+  "venue": {
+    "name": "Open Door Bible Baptist Church Sagay",
+    "address": "Brgy Poblacion 1, Charmaine Village\nSagay City, 6122 Negros Occidental\nPhilippines",
+    "map_url": ""
+  },
+  "attire": {
+    "heading": "In soft lavender & gray",
+    "tagline": "Elegant · Modest · Classy",
+    "ladies_guidance": "As we will be celebrating in church, we kindly ask for dresses with sleeves, higher necklines and midi or maxi lengths, in any of the colors below. Simple accessories and soft, understated styling are perfect.",
+    "gentlemen_guidance": "Gentlemen are welcome in light gray suits with a lavender or gray tie."
+  },
+  "swatches": [
+    {"name": "Lavender", "hex": "#CAB8E8"},
+    {"name": "Lilac", "hex": "#B9A2D0"},
+    {"name": "Dusty Mauve", "hex": "#C69AA9"},
+    {"name": "Light Gray", "hex": "#CFD0D4"},
+    {"name": "Sage Green", "hex": "#9DB09A"},
+    {"name": "Ivory", "hex": "#F8F2DC"}
+  ],
+  "faqs": [
+    {"question": "May I bring a guest?", "answer": "", "is_published": false},
+    {"question": "Are children welcome?", "answer": "", "is_published": false},
+    {"question": "Where should I park?", "answer": "", "is_published": false},
+    {"question": "Is there a gift registry?", "answer": "", "is_published": false}
+  ]
+}

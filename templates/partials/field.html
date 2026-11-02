@@ -1,0 +1,7 @@
+{# A labelled text field with hint and errors. Usage: include with field=form.x [hint="..."] [optional=True] #}
+<div class="field">
+  <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if optional %} <span class="label__optional">(optional)</span>{% endif %}</label>
+  {% include "partials/input.html" %}
+  {% if hint %}<p class="hint" id="{{ field.auto_id }}_hint">{{ hint }}</p>{% endif %}
+  {% if field.errors %}<p class="error" id="{{ field.auto_id }}_error">{{ field.errors|first }}</p>{% endif %}
+</div>

@@ -1,0 +1,14 @@
+<article class="event-card" aria-labelledby="event-{{ event.kind }}">
+  <h3 class="eyebrow" id="event-{{ event.kind }}">{{ event.get_kind_display }}</h3>
+  {% if event.time %}<p class="event-card__time">{{ event.time|time:"g:i A" }}</p>{% endif %}
+  {% with date=event.date|default:wedding.wedding_datetime %}
+  <p class="date-line">{{ date|date:"F j, Y" }}</p>
+  {% endwith %}
+  {% if event.venue_name or event.address_lines %}
+  <hr class="event-card__rule">
+  <p class="event-card__venue">
+    {% if event.venue_name %}<span>{{ event.venue_name }}</span>{% endif %}
+    {% for line in event.address_lines %}<span>{{ line }}</span>{% endfor %}
+  </p>
+  {% endif %}
+</article>

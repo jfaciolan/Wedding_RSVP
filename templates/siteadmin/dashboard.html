@@ -1,0 +1,153 @@
+{% extends "siteadmin/base.html" %}
+{% load l10n %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Dashboard</h1>
+  <a class="btn btn--primary" href="{% url 'siteadmin:rsvp_export' %}">Export CSV</a>
+</div>
+
+<section class="card" aria-labelledby="rsvp-status">
+  <h2 class="card-title" id="rsvp-status">RSVP status</h2>
+  <p>
+    {% if rsvp_open %}<span class="badge badge--ok">Open</span>{% else %}<span class="badge badge--warn">Closed</span>{% endif %}
+    {% if rsvp_settings.deadline %}
+      Deadline {{ rsvp_settings.deadline|date:"l, F j, Y, g:i A" }}
+      · <strong>{{ days_remaining }} day{{ days_remaining|pluralize }} remaining</strong>
+    {% else %}
+      No deadline set. <a class="link" href="{% url 'siteadmin:rsvp_settings' %}">Set one</a>
+    {% endif %}
+  </p>
+</section>
+
+<section class="card chart-card" aria-labelledby="invitee-status">
+  <h2 class="card-title" id="invitee-status">Invitee status</h2>
+  {% if invitee_chart.total %}
+  <div class="chart">
+    <div class="donut" role="img"
+      aria-label="{% for s in invitee_chart.slices %}{{ s.label }}: {{ s.count }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+      style="background: conic-gradient({% for s in invitee_chart.slices %}var(--chart-{{ s.key }}) {{ s.start|unlocalize }}% {{ s.end|unlocalize }}%{% if not forloop.last %}, {% endif %}{% endfor %});">
+      <span class="donut__total"><strong>{{ invitee_chart.total }}</strong> invitee{{ invitee_chart.total|pluralize }}</span>
+    </div>
+    <ul class="chart-legend">
+      {% for s in invitee_chart.slices %}
+      <li>
+        <a class="chart-legend__item" href="?status={{ s.key }}#invitees"{% if invitee_status == s.key %} aria-current="true"{% endif %}>
+          <span class="swatch" style="background: var(--chart-{{ s.key }});"></span>
+          <span class="chart-legend__label">{{ s.label }}</span>
+          <span class="chart-legend__value">{{ s.count }} <span class="muted">· {{ s.percent }}%</span></span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <p class="hint spaced">
+    Includes {{ invitee_chart.no_link }} RSVP{{ invitee_chart.no_link|pluralize }} without an invite link
+    (<a class="link" href="?status=no_link#invitees">show</a>). Revoked invitations are not counted until restored.
+  </p>
+  {% else %}<p class="empty">No invitations or RSVPs yet.</p>{% endif %}
+</section>
+
+<div class="stats">
+  <section class="card" aria-labelledby="inv-stats">
+    <h2 class="card-title" id="inv-stats">Invitations</h2>
+    <dl class="stat-grid">
+      <div><dt>Total</dt><dd>{{ invitations.total }}</dd></div>
+      <div><dt>Opened</dt><dd>{{ invitations.opened }}</dd></div>
+      <div><dt>Responded</dt><dd>{{ invitations.responded }}</dd></div>
+      <div><dt>Not yet responded</dt><dd>{{ invitations.not_responded }}</dd></div>
+    </dl>
+  </section>
+  <section class="card" aria-labelledby="resp-stats">
+    <h2 class="card-title" id="resp-stats">Responses</h2>
+    <dl class="stat-grid">
+      <div><dt>Attending</dt><dd>{{ responses.attending }}</dd></div>
+      <div><dt>Declined</dt><dd>{{ responses.declined }}</dd></div>
+      <div><dt>Total headcount</dt><dd>{{ responses.headcount }}</dd></div>
+      <div><dt><a class="link" href="{% url 'siteadmin:rsvps' %}?status=no_link">No invite link</a></dt><dd>{{ responses.no_invite_link }}</dd></div>
+    </dl>
+  </section>
+</div>
+
+<section class="card" aria-labelledby="dupes">
+  <h2 class="card-title" id="dupes">Possible duplicates</h2>
+  {% if duplicates %}
+  <p class="hint">These RSVPs share a name, mobile or Messenger with another RSVP. Review and delete or merge by editing.</p>
+  <ul class="list">
+    {% for rsvp, reasons in duplicates %}
+    <li><a class="link" href="{% url 'siteadmin:rsvp_edit' rsvp.pk %}">{{ rsvp.full_name }}</a>
+      {% for reason in reasons %}<span class="badge badge--warn">Same {{ reason }}</span>{% endfor %}
+      {% if not rsvp.has_invite_link %}<span class="badge badge--muted">No invite link</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="empty">No possible duplicates.</p>{% endif %}
+</section>
+
+<section class="card" id="invitees" aria-labelledby="invitees-title">
+  <h2 class="card-title" id="invitees-title">Invitees &amp; respondents</h2>
+  <form method="get" action="#invitees" class="filters" role="search">
+    <div class="field">
+      <label class="label" for="q">Search</label>
+      <input class="input" type="search" id="q" name="q" value="{{ invitee_query }}" placeholder="Name, invitation, mobile, Messenger or email">
+    </div>
+    <div class="field">
+      <label class="label" for="status">Show</label>
+      <select class="input" id="status" name="status" data-autosubmit>
+        {% for value, label in invitee_filters %}<option value="{{ value }}"{% if value == invitee_status %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="filters__actions">
+      <button class="btn btn--primary" type="submit">Apply</button>
+      {% if invitee_query or invitee_status %}<a class="btn btn--ghost" href="{% url 'siteadmin:dashboard' %}#invitees">Clear</a>{% endif %}
+    </div>
+  </form>
+
+  <p class="hint spaced">{{ invitees|length }} shown</p>
+  {% if invitees %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Guests</th><th scope="col">Contact</th><th scope="col">Invite link</th><th scope="col">Updated</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+      {% for row in invitees %}
+        <tr{% if row.revoked %} class="is-revoked"{% endif %}>
+          <td data-label="Name">
+            {% if row.rsvp %}<a class="link" href="{% url 'siteadmin:rsvp_edit' row.rsvp.pk %}">{{ row.name }}</a>{% else %}<strong>{{ row.name }}</strong>{% endif %}
+            {% if row.rsvp and row.invitation and row.invitation.label != row.name %}<div class="muted">{{ row.invitation.label }}</div>{% endif %}
+          </td>
+          <td data-label="Status">
+            {% if row.revoked %}<span class="badge badge--muted">Revoked</span>{% endif %}
+            {% if row.status == "attending" %}<span class="badge badge--ok">Attending</span>
+            {% elif row.status == "declined" %}<span class="badge badge--warn">Declined</span>
+            {% elif row.status == "opened" %}<span class="badge">Opened, no reply</span>
+            {% else %}<span class="badge badge--muted">Not opened</span>{% endif %}
+          </td>
+          <td data-label="Guests">{% if row.status == "attending" %}{{ row.rsvp.guests }}{% else %}–{% endif %}{% if row.invitation %} <span class="muted">/ {{ row.invitation.max_guests }}</span>{% endif %}</td>
+          <td data-label="Contact">
+            {% if row.rsvp.mobile %}<div>{{ row.rsvp.mobile }}</div>{% endif %}
+            {% if row.rsvp.messenger %}<div>Messenger: {{ row.rsvp.messenger }}</div>{% endif %}
+            {% if row.rsvp.email %}<div>{{ row.rsvp.email }}</div>{% endif %}
+          </td>
+          <td data-label="Invite link">
+            {% if row.invitation %}{% include "siteadmin/copy_link.html" with invitation=row.invitation %}{% else %}<span class="badge badge--warn">No invite link</span>{% endif %}
+          </td>
+          <td data-label="Updated">{{ row.updated|date:"M j, g:i A"|default:"–" }}</td>
+          <td data-label="">
+            {% if row.invitation %}
+            <div class="row-actions">
+              <a class="btn btn--ghost" href="{% url 'siteadmin:invitation_edit' row.invitation.pk %}?next={{ request.get_full_path|urlencode }}%23invitees">Edit label<span class="visually-hidden"> for {{ row.invitation.label }}</span></a>
+              <form method="post" action="{% url 'siteadmin:invitation_revoke' row.invitation.pk %}">{% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}#invitees">
+                <button class="btn btn--ghost{% if not row.revoked %} btn--danger{% endif %}" type="submit">{% if row.revoked %}Restore{% else %}Revoke{% endif %}<span class="visually-hidden"> {{ row.invitation.label }}</span></button>
+              </form>
+              <a class="btn btn--ghost btn--danger" href="{% url 'siteadmin:invitation_delete' row.invitation.pk %}?next={{ request.get_full_path|urlencode }}%23invitees">Delete link<span class="visually-hidden"> for {{ row.invitation.label }}</span></a>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="empty">No one matches.</p>{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "siteadmin/base.html" %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">Delete invite link?</h1></div>
+<form method="post" class="card form">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+  <p>The private link for <strong>“{{ invitation.label }}”</strong> will stop working for good. This cannot be undone.</p>
+  {% if rsvp %}
+  <p class="spaced">Their RSVP (<strong>{{ rsvp.full_name }}</strong>, {% if rsvp.attending %}attending · {{ rsvp.guests }}{% else %}declined{% endif %}) is kept and will be listed under “No invite link”.</p>
+  {% endif %}
+  <p class="hint spaced">To turn the link off for now and keep it, revoke it instead. You can restore a revoked link later.</p>
+  <div class="form__actions">
+    <button class="btn btn--primary btn--danger-solid" type="submit">Delete link</button>
+    <a class="btn btn--ghost" href="{{ next }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

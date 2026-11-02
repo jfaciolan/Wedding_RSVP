@@ -1,0 +1,59 @@
+{% extends "siteadmin/base.html" %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">Invitations</h1></div>
+
+<form method="post" class="card form" novalidate>
+  {% csrf_token %}
+  <h2 class="card-title">Create invitations</h2>
+  <p class="hint">Fill in as many rows as you need; empty rows are ignored. Each invitation gets its own private link.</p>
+  {{ formset.management_form }}
+  {% if formset.non_form_errors %}<div class="error-summary" role="alert">{{ formset.non_form_errors }}</div>{% endif %}
+  <div class="formset">
+    {% for form in formset %}
+    <div class="formset__row">
+      {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+      {% include "siteadmin/field.html" with field=form.label %}
+      {% include "siteadmin/field.html" with field=form.max_guests %}
+    </div>
+    {% endfor %}
+  </div>
+  <div class="form__actions"><button class="btn btn--primary" type="submit">Create invitations</button></div>
+</form>
+
+<section class="card" aria-labelledby="all-invitations">
+  <h2 class="card-title" id="all-invitations">All invitations ({{ invitations|length }})</h2>
+  {% if invitations %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Label</th><th scope="col">Max</th><th scope="col">Status</th><th scope="col">Link</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+      {% for invitation in invitations %}
+        <tr{% if invitation.is_revoked %} class="is-revoked"{% endif %}>
+          <td data-label="Label"><strong>{{ invitation.label }}</strong></td>
+          <td data-label="Max">{{ invitation.max_guests }}</td>
+          <td data-label="Status">
+            {% if invitation.is_revoked %}<span class="badge badge--muted">Revoked</span>
+            {% elif invitation.rsvp %}
+              {% if invitation.rsvp.attending %}<span class="badge badge--ok">Responded · attending ({{ invitation.rsvp.guests }})</span>
+              {% else %}<span class="badge badge--warn">Responded · declined</span>{% endif %}
+            {% elif invitation.first_opened_at %}<span class="badge">Opened {{ invitation.first_opened_at|date:"M j, Y" }}</span>
+            {% else %}<span class="badge badge--muted">Not opened</span>{% endif %}
+          </td>
+          <td data-label="Link">{% include "siteadmin/copy_link.html" %}</td>
+          <td data-label="">
+            <div class="row-actions">
+              <a class="btn btn--ghost" href="{% url 'siteadmin:invitation_edit' invitation.pk %}">Edit<span class="visually-hidden"> {{ invitation.label }}</span></a>
+              <form method="post" action="{% url 'siteadmin:invitation_revoke' invitation.pk %}">{% csrf_token %}
+                <button class="btn btn--ghost{% if not invitation.is_revoked %} btn--danger{% endif %}" type="submit">{% if invitation.is_revoked %}Restore{% else %}Revoke{% endif %}<span class="visually-hidden"> {{ invitation.label }}</span></button>
+              </form>
+              <a class="btn btn--ghost btn--danger" href="{% url 'siteadmin:invitation_delete' invitation.pk %}">Delete<span class="visually-hidden"> link for {{ invitation.label }}</span></a>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<p class="empty">No invitations yet.</p>{% endif %}
+</section>
+{% endblock %}

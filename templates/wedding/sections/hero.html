@@ -1,0 +1,16 @@
+<section class="hero" id="top" aria-labelledby="hero-names">
+  <div class="container hero__inner">
+    {% include "partials/monogram.html" with size="hero" %}
+    {% if wedding.families_line %}<p class="eyebrow">{{ wedding.families_line }}</p>{% endif %}
+    <h1 class="hero__names" id="hero-names">{% include "partials/couple_names.html" with break=True %}</h1>
+    {% if wedding.full_names %}<p class="hero__full-names">{{ wedding.full_names }}</p>{% endif %}
+    <hr class="hero__rule">
+    {% if wedding.invitation_line %}<p class="italic-line">{{ wedding.invitation_line }}</p>{% endif %}
+    <p class="date-line"><time datetime="{{ wedding.wedding_datetime|date:'c' }}">{{ wedding.wedding_datetime|date:"l, F j, Y" }} · {{ wedding.wedding_datetime|time:"g:i A" }}</time></p>
+    {% if ceremony.venue_name %}<p class="hero__venue">{{ ceremony.venue_name }}{% if ceremony.city %} · {{ ceremony.city }}{% endif %}</p>{% endif %}
+    <div class="hero__actions">
+      <a class="btn btn--primary" href="#rsvp">Kindly RSVP</a>
+      {% if show.day %}<a class="btn btn--secondary" href="#the-day">See the details</a>{% endif %}
+    </div>
+  </div>
+</section>

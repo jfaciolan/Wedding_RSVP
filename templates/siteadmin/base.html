@@ -1,0 +1,52 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% if title %}{{ title }} · {% endif %}Site Admin</title>
+  <link rel="icon" type="image/png" href="{% static 'img/monogram-sm.png' %}">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% block header %}
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="topbar__brand" href="{% url 'siteadmin:dashboard' %}">
+        <img src="{% static 'img/monogram-sm.png' %}" width="36" height="36" alt="">
+        <span>Site Admin</span>
+      </a>
+      <div class="topbar__actions">
+        <a class="link" href="{% url 'wedding:home' %}" target="_blank" rel="noopener">View site<span class="visually-hidden"> (opens in a new tab)</span></a>
+        <form method="post" action="{% url 'siteadmin:logout' %}">{% csrf_token %}<button class="btn btn--ghost" type="submit">Log out</button></form>
+      </div>
+    </div>
+    <nav class="sidenav" aria-label="Site Admin">
+      <ul>
+        <li><a href="{% url 'siteadmin:dashboard' %}"{% if nav == "dashboard" %} aria-current="page"{% endif %}>Dashboard</a></li>
+        <li><a href="{% url 'siteadmin:wedding' %}"{% if nav == "wedding" %} aria-current="page"{% endif %}>Wedding details</a></li>
+        <li><a href="{% url 'siteadmin:events' %}"{% if nav == "events" %} aria-current="page"{% endif %}>Ceremony &amp; Reception</a></li>
+        <li><a href="{% url 'siteadmin:ordered_list' 'schedule' %}"{% if nav == "schedule" %} aria-current="page"{% endif %}>Order of the day</a></li>
+        <li><a href="{% url 'siteadmin:venue' %}"{% if nav == "venue" %} aria-current="page"{% endif %}>Venue</a></li>
+        <li><a href="{% url 'siteadmin:attire' %}"{% if nav == "attire" %} aria-current="page"{% endif %}>Attire</a></li>
+        <li><a href="{% url 'siteadmin:ordered_list' 'faqs' %}"{% if nav == "faqs" %} aria-current="page"{% endif %}>FAQs</a></li>
+        <li><a href="{% url 'siteadmin:invitations' %}"{% if nav == "invitations" %} aria-current="page"{% endif %}>Invitations</a></li>
+        <li><a href="{% url 'siteadmin:rsvps' %}"{% if nav == "rsvps" %} aria-current="page"{% endif %}>RSVPs</a></li>
+        <li><a href="{% url 'siteadmin:rsvp_settings' %}"{% if nav == "rsvp_settings" %} aria-current="page"{% endif %}>RSVP settings</a></li>
+      </ul>
+    </nav>
+  </header>
+  {% endblock %}
+  <main id="main" class="main">
+    {% if messages %}
+    <div class="messages" role="status">
+      {% for message in messages %}<p class="message message--{{ message.tags }}">{{ message }}</p>{% endfor %}
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{% static 'js/admin.js' %}" defer></script>
+</body>
+</html>

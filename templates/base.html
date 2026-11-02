@@ -1,0 +1,21 @@
+{% load static %}<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}{% if wedding.couple_names %}{{ wedding.couple_names }}{% else %}Wedding{% endif %}{% endblock %}</title>
+  {% block meta %}{% endblock %}
+  <link rel="icon" type="image/png" href="{% static 'img/monogram-sm.png' %}">
+  <link rel="preload" href="{% static 'fonts/cormorant-garamond-latin-500-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'fonts/nunito-sans-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <script>document.documentElement.classList.replace("no-js", "js");</script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% block body %}{% endblock %}
+  <script src="{% static 'js/site.js' %}" defer></script>
+</body>
+</html>

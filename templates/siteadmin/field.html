@@ -1,0 +1,21 @@
+{% load site_tags %}
+{% if field.is_hidden %}{{ field }}{% elif field.widget_type == "checkbox" %}
+<div class="field field--check">
+  {{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% if field.help_text %}<p class="hint">{{ field.help_text }}</p>{% endif %}
+  {% for error in field.errors %}<p class="error">{{ error }}</p>{% endfor %}
+</div>
+{% elif field.widget_type == "radioselect" %}
+<fieldset class="field">
+  <legend class="label">{{ field.label }}</legend>
+  <div class="radios">{% for radio in field %}<label class="radio">{{ radio.tag }} {{ radio.choice_label }}</label>{% endfor %}</div>
+  {% for error in field.errors %}<p class="error">{{ error }}</p>{% endfor %}
+</fieldset>
+{% else %}
+<div class="field">
+  <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="required" aria-hidden="true">*</span>{% endif %}</label>
+  {% input_widget field field.help_text %}
+  {% if field.help_text %}<p class="hint" id="{{ field.auto_id }}_hint">{{ field.help_text }}</p>{% endif %}
+  {% for error in field.errors %}<p class="error" id="{{ field.auto_id }}_error">{{ error }}</p>{% endfor %}
+</div>
+{% endif %}

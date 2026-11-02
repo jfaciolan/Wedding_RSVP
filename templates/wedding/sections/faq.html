@@ -1,0 +1,23 @@
+<section class="section" id="faq" aria-labelledby="faq-title">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Good to know</p>
+      <h2 class="section-title" id="faq-title">Questions, answered</h2>
+    </div>
+    <ul class="faq-list" data-accordion>
+      {% for faq in faqs %}
+      <li class="faq-item">
+        <h3 class="faq-item__question">
+          <button class="faq-item__button" type="button" aria-expanded="false" aria-controls="faq-panel-{{ faq.pk }}" id="faq-q-{{ faq.pk }}">
+            <span>{{ faq.question }}</span>
+            <svg class="faq-item__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </button>
+        </h3>
+        <div class="faq-item__panel" id="faq-panel-{{ faq.pk }}" role="region" aria-labelledby="faq-q-{{ faq.pk }}">
+          <div>{{ faq.answer|linebreaks }}</div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>

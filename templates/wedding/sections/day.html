@@ -1,0 +1,31 @@
+<section class="section section--mist" id="the-day" aria-labelledby="day-title">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">The Day</p>
+      <h2 class="section-title" id="day-title">Where &amp; when</h2>
+    </div>
+    {% if show.ceremony or show.reception %}
+    <div class="events{% if not show.ceremony or not show.reception %} events--single{% endif %}">
+      {% if show.ceremony %}{% include "wedding/sections/event_card.html" with event=ceremony %}{% endif %}
+      {% if show.reception %}{% include "wedding/sections/event_card.html" with event=reception %}{% endif %}
+    </div>
+    {% endif %}
+    {% if show.schedule %}
+    <div class="timeline-block">
+      <h3 class="sub-heading">The order of the day</h3>
+      <ol class="timeline">
+        {% for item in schedule %}
+        <li class="timeline__item">
+          <span class="timeline__time">{% if item.time %}{{ item.time|time:"g:i A" }}{% endif %}</span>
+          <span class="timeline__dot" aria-hidden="true"></span>
+          <div>
+            <p class="timeline__title">{{ item.title }}</p>
+            {% if item.subtitle %}<p class="timeline__subtitle">{{ item.subtitle }}</p>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% endif %}
+  </div>
+</section>

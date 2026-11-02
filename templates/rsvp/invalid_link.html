@@ -1,0 +1,10 @@
+{% extends "partials/simple_page.html" %}
+{% block title %}Link not found{% endblock %}
+{% block page_content %}
+  <p class="eyebrow">Invitation link</p>
+  <h1 class="section-title">We couldn't find that invitation</h1>
+  <p class="lead">The link may have a typo or may no longer be active. You can still read all the details and reply on our main page.</p>
+  <div class="page__actions">
+    <a class="btn btn--primary" href="{% url 'wedding:home' %}">Go to the invitation</a>
+  </div>
+{% endblock %}

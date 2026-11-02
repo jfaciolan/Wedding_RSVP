@@ -1,0 +1,12 @@
+{% extends "siteadmin/base.html" %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">Delete {{ config.singular }}?</h1></div>
+<form method="post" class="card form">
+  {% csrf_token %}
+  <p>“{{ object }}” will be removed from the public page. This cannot be undone.</p>
+  <div class="form__actions">
+    <button class="btn btn--primary btn--danger-solid" type="submit">Delete</button>
+    <a class="btn btn--ghost" href="{{ back_url }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

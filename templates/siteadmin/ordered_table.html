@@ -1,0 +1,24 @@
+<div class="card">
+  <div class="card-head">
+    <h2 class="card-title">{{ config.title }}</h2>
+    <a class="btn btn--primary" href="{% url 'siteadmin:ordered_add' kind %}">Add {{ config.singular }}</a>
+  </div>
+  {% if config.intro %}<p class="hint">{{ config.intro }}</p>{% endif %}
+  {% if items %}
+  <ol class="ordered">
+    {% for item in items %}
+    <li class="ordered__row">
+      <div class="ordered__body">{% include "siteadmin/rows/"|add:kind|add:".html" %}</div>
+      <div class="ordered__actions">
+        <form method="post" action="{% url 'siteadmin:ordered_move' kind item.pk 'up' %}">{% csrf_token %}<button class="icon-btn" type="submit"{% if forloop.first %} disabled{% endif %} aria-label="Move {{ item }} up">↑</button></form>
+        <form method="post" action="{% url 'siteadmin:ordered_move' kind item.pk 'down' %}">{% csrf_token %}<button class="icon-btn" type="submit"{% if forloop.last %} disabled{% endif %} aria-label="Move {{ item }} down">↓</button></form>
+        <a class="btn btn--ghost" href="{% url 'siteadmin:ordered_edit' kind item.pk %}">Edit<span class="visually-hidden"> {{ item }}</span></a>
+        <a class="btn btn--ghost btn--danger" href="{% url 'siteadmin:ordered_delete' kind item.pk %}">Delete<span class="visually-hidden"> {{ item }}</span></a>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="empty">Nothing here yet. This section stays hidden on the public page until you add one.</p>
+  {% endif %}
+</div>
