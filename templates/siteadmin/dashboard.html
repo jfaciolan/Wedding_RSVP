@@ -108,7 +108,7 @@
   {% if invitees %}
   <div class="table-wrap">
     <table class="table">
-      <thead><tr><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Guests</th><th scope="col">Contact</th><th scope="col">Invite link</th><th scope="col">Updated</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <thead><tr><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Guests</th><th scope="col" class="col-contact">Contact</th><th scope="col" class="col-link">Invite link</th><th scope="col" class="col-actions"><span class="visually-hidden">Actions</span></th></tr></thead>
       <tbody>
       {% for row in invitees %}
         <tr{% if row.revoked %} class="is-revoked"{% endif %}>
@@ -122,21 +122,21 @@
             {% elif row.status == "declined" %}<span class="badge badge--warn">Declined</span>
             {% elif row.status == "opened" %}<span class="badge">Opened, no reply</span>
             {% else %}<span class="badge badge--muted">Not opened</span>{% endif %}
+            {% if row.updated %}<div class="cell-meta">Updated {{ row.updated|date:"M j, g:i A" }}</div>{% endif %}
           </td>
           <td data-label="Guests">{% if row.status == "attending" %}{{ row.rsvp.guests }}{% else %}–{% endif %}{% if row.invitation %} <span class="muted">/ {{ row.invitation.max_guests }}</span>{% endif %}
             {% if row.over_max %}<div><span class="badge badge--warn">Over max</span></div>{% endif %}
             {% if row.max_raised %}<div><span class="badge">Max raised</span></div>{% endif %}
           </td>
-          <td data-label="Contact">
+          <td data-label="Contact" class="col-contact">
             {% if row.rsvp.mobile %}<div>{{ row.rsvp.mobile }}</div>{% endif %}
             {% if row.rsvp.messenger %}<div>Messenger: {{ row.rsvp.messenger }}</div>{% endif %}
             {% if row.rsvp.email %}<div>{{ row.rsvp.email }}</div>{% endif %}
           </td>
-          <td data-label="Invite link">
+          <td data-label="Invite link" class="col-link">
             {% if row.invitation %}{% include "siteadmin/copy_link.html" with invitation=row.invitation %}{% else %}<span class="badge badge--warn">No invite link</span>{% endif %}
           </td>
-          <td data-label="Updated">{{ row.updated|date:"M j, g:i A"|default:"–" }}</td>
-          <td data-label="">
+          <td data-label="" class="col-actions">
             {% if row.invitation %}
             {% with next=request.get_full_path|add:"#invitees" %}{% include "siteadmin/invitation_actions.html" with invitation=row.invitation %}{% endwith %}
             {% endif %}
