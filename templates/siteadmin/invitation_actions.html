@@ -1,0 +1,26 @@
+{% comment %}
+Icon buttons for one invitation: edit, revoke/restore, delete.
+Params: invitation; next (optional URL to return to, e.g. "/site-admin/?q=x#invitees").
+{% endcomment %}
+<div class="row-actions row-actions--icons">
+  <a class="btn action-btn" href="{% url 'siteadmin:invitation_edit' invitation.pk %}{% if next %}?next={{ next|urlencode }}{% endif %}"
+     aria-label="Edit {{ invitation.label }}" data-tip="Edit name and max guests">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>
+  </a>
+  <form method="post" action="{% url 'siteadmin:invitation_revoke' invitation.pk %}">{% csrf_token %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    {% if invitation.is_revoked %}
+    <button class="btn action-btn" type="submit" aria-label="Restore {{ invitation.label }}" data-tip="Restore: the invite link works again">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 4v4h4"/></svg>
+    </button>
+    {% else %}
+    <button class="btn action-btn action-btn--danger" type="submit" aria-label="Revoke {{ invitation.label }}" data-tip="Revoke: turn off the invite link (can be restored)">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/></svg>
+    </button>
+    {% endif %}
+  </form>
+  <a class="btn action-btn action-btn--danger" href="{% url 'siteadmin:invitation_delete' invitation.pk %}{% if next %}?next={{ next|urlencode }}{% endif %}"
+     aria-label="Delete link for {{ invitation.label }}" data-tip="Delete the invite link for good (any RSVP is kept)">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>
+  </a>
+</div>

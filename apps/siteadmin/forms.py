@@ -123,10 +123,11 @@ class InvitationForm(forms.ModelForm):
         widgets = {"label": forms.TextInput(attrs={"placeholder": "e.g. Santos family"})}
 
 
-class InvitationLabelForm(forms.ModelForm):
+class InvitationEditForm(forms.ModelForm):
     class Meta:
         model = Invitation
-        fields = ["label"]
+        fields = ["label", "max_guests"]
+        help_texts = {"label": ""}
         widgets = {"label": forms.TextInput(attrs={"placeholder": "e.g. Santos family"})}
 
 

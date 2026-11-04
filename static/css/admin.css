@@ -117,6 +117,29 @@ select.input { appearance: auto; }
 .btn--danger-solid { background: var(--error); }
 .btn--danger-solid:hover { background: var(--plum-950); }
 .btn--block { width: 100%; margin-top: var(--space-6); }
+
+/* Icon-only row actions with a hover/focus tooltip from data-tip */
+.row-actions.row-actions--icons { flex-wrap: nowrap; }
+.row-actions--icons form { display: flex; margin: 0; }
+.row-actions--icons .action-btn { flex: 0 0 auto; }
+.action-btn {
+  position: relative; width: 36px; min-height: 36px; padding: 0;
+  border-color: var(--plum-700); color: var(--plum-700);
+}
+.action-btn:hover { background: var(--lavender-100); }
+.action-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.action-btn--danger { border-color: var(--error); color: var(--error); }
+.action-btn--danger:hover { background: var(--error-bg); }
+.action-btn[data-tip]::after {
+  content: attr(data-tip); position: absolute; right: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 10;
+  width: max-content; max-width: 220px; padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm); background: var(--plum-950); color: var(--white);
+  font-size: 12px; font-weight: 600; letter-spacing: normal; text-transform: none; white-space: normal; text-align: left;
+  opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.12s;
+}
+.action-btn[data-tip]:hover::after,
+.action-btn[data-tip]:focus-visible::after { opacity: 1; visibility: visible; }
+@media (max-width: 719.98px) { .action-btn[data-tip]::after { right: auto; left: 0; top: calc(100% + 6px); transform: none; } }
 .icon-btn { width: 36px; height: 36px; border: 1px solid var(--plum-700); border-radius: var(--radius-pill); background: var(--white); color: var(--plum-700); font-size: 16px; cursor: pointer; }
 .icon-btn:hover:not(:disabled) { background: var(--lavender-100); }
 .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -160,7 +183,8 @@ select.input { appearance: auto; }
 
 .messages { margin-bottom: var(--space-5); }
 .message { padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--success-bg); color: var(--success); }
-.message--error { background: var(--error-bg); color: var(--error); }
+.message--error,
+.message--warning { background: var(--error-bg); color: var(--error); }
 
 /* Login */
 .login { display: flex; justify-content: center; padding-top: var(--space-7); }

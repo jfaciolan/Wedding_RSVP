@@ -239,3 +239,37 @@ def test_days_remaining():
     assert days_remaining(now + dt.timedelta(days=9, hours=1), now=now) == 10
     assert days_remaining(now - dt.timedelta(days=1), now=now) == 0
     assert days_remaining(None) is None
+
+
+def test_invite_page_asks_to_resubmit_after_max_lowered(
+    client, wedding, rsvp_settings, invitation_a, rsvp_post
+):
+    open_link(client, invitation_a)
+    client.post(SUBMIT, rsvp_post(guests="3"))
+    invitation_a.max_guests = 2
+    invitation_a.save()
+    response = client.get("/")
+    body = response.content.decode()
+    assert "maximum guest slots for this invitation have been updated" in body
+    assert response.context["form"].initial["guests"] == 2
+    assert client.post(SUBMIT, rsvp_post(guests="3")).status_code == 400
+    assert client.post(SUBMIT, rsvp_post(guests="2")).status_code == 302
+    assert not Rsvp.objects.get().over_max
+    assert "have been updated" not in client.get("/").content.decode()
+
+
+def test_invite_page_tells_guest_when_max_raised(
+    client, wedding, rsvp_settings, invitation_a, rsvp_post
+):
+    open_link(client, invitation_a)
+    client.post(SUBMIT, rsvp_post(guests="2"))
+    assert Rsvp.objects.get().reply_max_guests == 3
+    assert "have been increased" not in client.get("/").content.decode()
+    invitation_a.max_guests = 5
+    invitation_a.save()
+    body = client.get("/").content.decode()
+    assert "have been increased to <strong>5</strong>" in body
+    assert client.post(SUBMIT, rsvp_post(guests="5")).status_code == 302
+    rsvp = Rsvp.objects.get()
+    assert rsvp.guests == 5 and not rsvp.max_raised
+    assert "have been increased" not in client.get("/").content.decode()

@@ -390,18 +390,39 @@ def test_csv_export(staff_client, invitation_a):
     assert walk[2] == "walkin" and walk[9] == "No"
 
 
-def test_edit_invitation_label_keeps_link(staff_client, invitation_a):
+def test_edit_invitation_keeps_link(staff_client, invitation_a):
     code = invitation_a.code
     url = f"/site-admin/invitations/{invitation_a.pk}/edit/"
     assert staff_client.get(url).status_code == 200
-    response = staff_client.post(url + "?next=/site-admin/%23invitees", {"label": "Reyes family"})
+    response = staff_client.post(
+        url + "?next=/site-admin/%23invitees", {"label": "Reyes family", "max_guests": "5"}
+    )
     assert response.status_code == 302 and response.url == "/site-admin/#invitees"
     invitation_a.refresh_from_db()
     assert invitation_a.label == "Reyes family"
-    assert invitation_a.code == code and invitation_a.max_guests == 3
-    assert staff_client.post(url, {"label": ""}).status_code == 200  # required
+    assert invitation_a.code == code and invitation_a.max_guests == 5
+    assert staff_client.post(url, {"label": "", "max_guests": "5"}).status_code == 200  # required
     invitation_a.refresh_from_db()
     assert invitation_a.label == "Reyes family"
+
+
+@pytest.mark.parametrize("value", ["0", "21", ""])
+def test_edit_invitation_rejects_bad_max(staff_client, invitation_a, value):
+    url = f"/site-admin/invitations/{invitation_a.pk}/edit/"
+    assert staff_client.post(url, {"label": "Test A", "max_guests": value}).status_code == 200
+    invitation_a.refresh_from_db()
+    assert invitation_a.max_guests == 3
+
+
+def test_edit_invitation_warns_when_max_below_rsvp(staff_client, invitation_a):
+    Rsvp.objects.create(
+        invitation=invitation_a, full_name="Ana", mobile="1", attending=True, guests=3
+    )
+    url = f"/site-admin/invitations/{invitation_a.pk}/edit/"
+    response = staff_client.post(url, {"label": "Test A", "max_guests": "2"}, follow=True)
+    invitation_a.refresh_from_db()
+    assert invitation_a.max_guests == 2
+    assert "already RSVP&#x27;d for 3 guests" in response.content.decode()
 
 
 def test_edit_invitation_requires_staff(client, invitation_a):
@@ -409,3 +430,37 @@ def test_edit_invitation_requires_staff(client, invitation_a):
     assert response.status_code == 302 and "/site-admin/login/" in response.url
     invitation_a.refresh_from_db()
     assert invitation_a.label == "Test A"
+
+
+def test_dashboard_flags_rsvp_over_lowered_max(staff_client, invitation_a, invitation_b):
+    Rsvp.objects.create(
+        invitation=invitation_a, full_name="Ana", mobile="1", attending=True, guests=3
+    )
+    Rsvp.objects.create(
+        invitation=invitation_b, full_name="Ben", mobile="2", attending=True, guests=1
+    )
+    invitation_a.max_guests = 2
+    invitation_a.save()
+    response = staff_client.get("/site-admin/")
+    body = response.content.decode()
+    assert response.context["responses"]["headcount"] == 3  # Ana capped at 2 + Ben 1
+    assert response.context["responses"]["over_max"] == 1
+    assert "Over max" in body
+    flagged = staff_client.get("/site-admin/?status=over_max").context["invitees"]
+    assert [row["name"] for row in flagged] == ["Ana"]
+    assert "Over max" in staff_client.get("/site-admin/invitations/").content.decode()
+
+
+def test_dashboard_flags_raised_max(staff_client, invitation_a):
+    Rsvp.objects.create(
+        invitation=invitation_a, full_name="Ana", mobile="1", attending=True, guests=2,
+        reply_max_guests=3,
+    )
+    url = f"/site-admin/invitations/{invitation_a.pk}/edit/"
+    saved = staff_client.post(url, {"label": "Test A", "max_guests": "5"}, follow=True)
+    assert "can now bring up to 5 guests" in saved.content.decode()
+    response = staff_client.get("/site-admin/")
+    assert response.context["responses"]["max_raised"] == 1
+    assert "Max raised" in response.content.decode()
+    flagged = staff_client.get("/site-admin/?status=max_raised").context["invitees"]
+    assert [row["name"] for row in flagged] == ["Ana"]

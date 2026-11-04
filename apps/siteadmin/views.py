@@ -294,28 +294,41 @@ class InvitationRevokeView(StaffRequiredMixin, View):
 
 
 class InvitationEditView(StaffRequiredMixin, UpdateView):
-    """Rename an invitation. The link (code) stays the same."""
+    """Edit an invitation's label and max guests. The link (code) stays the same."""
 
     model = Invitation
-    form_class = forms.InvitationLabelForm
+    form_class = forms.InvitationEditForm
     template_name = "siteadmin/form_page.html"
 
     def get_success_url(self):
         return safe_next(self.request)
 
     def form_valid(self, form):
-        messages.success(self.request, f"Invitation renamed to “{form.instance.label}”.")
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        invitation = self.object
+        messages.success(self.request, f"Invitation “{invitation.label}” saved.")
+        rsvp = Rsvp.objects.filter(invitation=invitation, attending=True).first()
+        if rsvp and rsvp.guests > invitation.max_guests:
+            messages.warning(
+                self.request,
+                f"“{invitation.label}” already RSVP'd for {rsvp.guests} guests, more than "
+                f"the new max of {invitation.max_guests}. Only {invitation.max_guests} count, and "
+                "they'll be asked to resubmit on their invite page.",
+            )
+        elif rsvp and rsvp.max_raised:
+            messages.info(
+                self.request,
+                f"“{invitation.label}” will be told on their invite page that they can "
+                f"now bring up to {invitation.max_guests} guests.",
+            )
+        return response
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(
             **kwargs,
             nav="invitations",
             title="Edit invitation",
-            intro=(
-                "Only the label changes. The invite link stays the same, "
-                "so links already sent keep working."
-            ),
+            intro="The invite link stays the same, so links already sent keep working.",
             back_url=safe_next(self.request),
         )
 

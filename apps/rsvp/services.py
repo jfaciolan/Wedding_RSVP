@@ -64,5 +64,6 @@ def save_rsvp(cleaned_data, invitation=None):
         rsvp = Rsvp(invitation=invitation)
     for field, value in values.items():
         setattr(rsvp, field, value)
+    rsvp.reply_max_guests = invitation.max_guests if invitation is not None else None
     rsvp.save()
     return rsvp, created

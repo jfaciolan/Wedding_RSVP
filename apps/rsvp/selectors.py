@@ -3,7 +3,8 @@
 import math
 from collections import defaultdict
 
-from django.db.models import Q, Sum
+from django.db.models import F, Q, Sum
+from django.db.models.functions import Coalesce, Least
 from django.utils import timezone
 
 from apps.core.utils import normalize_messenger, normalize_mobile, normalize_name
@@ -63,11 +64,18 @@ def invitation_stats():
 
 def response_stats():
     # RSVPs tied to a revoked invitation are kept but not counted until it is restored.
+    # Guests over a lowered invitation max only count up to that max.
     rsvps = Rsvp.objects.exclude(invitation__is_revoked=True)
+    attending = rsvps.filter(attending=True)
+    allowed = Least("guests", Coalesce("invitation__max_guests", "guests"))
     return {
-        "attending": rsvps.filter(attending=True).count(),
+        "attending": attending.count(),
         "declined": rsvps.filter(attending=False).count(),
-        "headcount": rsvps.filter(attending=True).aggregate(n=Sum("guests"))["n"] or 0,
+        "headcount": attending.aggregate(n=Sum(allowed))["n"] or 0,
+        "over_max": attending.filter(guests__gt=F("invitation__max_guests")).count(),
+        "max_raised": attending.filter(
+            reply_max_guests__isnull=False, invitation__max_guests__gt=F("reply_max_guests")
+        ).count(),
         "no_invite_link": rsvps.filter(invitation__isnull=True).count(),
         "total": rsvps.count(),
     }
@@ -122,6 +130,8 @@ INVITEE_STATUSES = [
 INVITEE_FILTERS = [
     ("", "All"),
     *INVITEE_STATUSES,
+    ("over_max", "Over max guests"),
+    ("max_raised", "Max guests raised"),
     ("no_link", "No invite link"),
     ("revoked", "Revoked"),
 ]
@@ -139,6 +149,8 @@ def _invitee_row(invitation, rsvp):
         "invitation": invitation,
         "rsvp": rsvp,
         "status": status,
+        "over_max": bool(rsvp and rsvp.over_max),
+        "max_raised": bool(rsvp and rsvp.max_raised),
         "revoked": bool(invitation and invitation.is_revoked),
         "updated": rsvp.updated_at if rsvp else invitation.first_opened_at,
     }
@@ -177,6 +189,8 @@ def filter_invitees(rows, query="", status=""):
         rows = [row for row in rows if not row["revoked"]]
         if status == "no_link":
             rows = [row for row in rows if row["invitation"] is None]
+        elif status in ("over_max", "max_raised"):
+            rows = [row for row in rows if row[status]]
         elif status in dict(INVITEE_STATUSES):
             rows = [row for row in rows if row["status"] == status]
     if query:

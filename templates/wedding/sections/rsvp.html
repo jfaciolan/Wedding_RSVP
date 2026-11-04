@@ -11,6 +11,11 @@
     <p class="rsvp__intro">Let us know whether you can celebrate with us. It only takes a minute.</p>
     <div class="form-card">
       {% if invitation %}
+      {% if slots_updated %}
+      <p class="invite-banner invite-banner--notice" role="status">The maximum guest slots for this invitation have been updated to <strong>{{ max_guests }}</strong>. Please resubmit your RSVP.</p>
+      {% elif slots_raised %}
+      <p class="invite-banner invite-banner--good" role="status">Good news! The maximum guest slots for this invitation have been increased to <strong>{{ max_guests }}</strong>. If you'd like to bring more guests, please resubmit your RSVP.</p>
+      {% endif %}
       <p class="invite-banner">Replying for <strong>{{ invitation.label }}</strong>{% if form.instance.pk %} · we have your earlier reply below; send again to update it{% endif %}.</p>
       {% endif %}
       <form method="post" action="{% url 'rsvp:submit' %}#rsvp" novalidate data-rsvp-form>

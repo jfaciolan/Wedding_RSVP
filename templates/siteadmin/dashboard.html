@@ -63,6 +63,8 @@
       <div><dt>Attending</dt><dd>{{ responses.attending }}</dd></div>
       <div><dt>Declined</dt><dd>{{ responses.declined }}</dd></div>
       <div><dt>Total headcount</dt><dd>{{ responses.headcount }}</dd></div>
+      {% if responses.over_max %}<div><dt><a class="link" href="{% url 'siteadmin:dashboard' %}?status=over_max#invitees">Over max guests</a></dt><dd>{{ responses.over_max }}</dd></div>{% endif %}
+      {% if responses.max_raised %}<div><dt><a class="link" href="{% url 'siteadmin:dashboard' %}?status=max_raised#invitees">Max guests raised</a></dt><dd>{{ responses.max_raised }}</dd></div>{% endif %}
       <div><dt><a class="link" href="{% url 'siteadmin:rsvps' %}?status=no_link">No invite link</a></dt><dd>{{ responses.no_invite_link }}</dd></div>
     </dl>
   </section>
@@ -121,7 +123,10 @@
             {% elif row.status == "opened" %}<span class="badge">Opened, no reply</span>
             {% else %}<span class="badge badge--muted">Not opened</span>{% endif %}
           </td>
-          <td data-label="Guests">{% if row.status == "attending" %}{{ row.rsvp.guests }}{% else %}–{% endif %}{% if row.invitation %} <span class="muted">/ {{ row.invitation.max_guests }}</span>{% endif %}</td>
+          <td data-label="Guests">{% if row.status == "attending" %}{{ row.rsvp.guests }}{% else %}–{% endif %}{% if row.invitation %} <span class="muted">/ {{ row.invitation.max_guests }}</span>{% endif %}
+            {% if row.over_max %}<div><span class="badge badge--warn">Over max</span></div>{% endif %}
+            {% if row.max_raised %}<div><span class="badge">Max raised</span></div>{% endif %}
+          </td>
           <td data-label="Contact">
             {% if row.rsvp.mobile %}<div>{{ row.rsvp.mobile }}</div>{% endif %}
             {% if row.rsvp.messenger %}<div>Messenger: {{ row.rsvp.messenger }}</div>{% endif %}
@@ -133,14 +138,7 @@
           <td data-label="Updated">{{ row.updated|date:"M j, g:i A"|default:"–" }}</td>
           <td data-label="">
             {% if row.invitation %}
-            <div class="row-actions">
-              <a class="btn btn--ghost" href="{% url 'siteadmin:invitation_edit' row.invitation.pk %}?next={{ request.get_full_path|urlencode }}%23invitees">Edit label<span class="visually-hidden"> for {{ row.invitation.label }}</span></a>
-              <form method="post" action="{% url 'siteadmin:invitation_revoke' row.invitation.pk %}">{% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}#invitees">
-                <button class="btn btn--ghost{% if not row.revoked %} btn--danger{% endif %}" type="submit">{% if row.revoked %}Restore{% else %}Revoke{% endif %}<span class="visually-hidden"> {{ row.invitation.label }}</span></button>
-              </form>
-              <a class="btn btn--ghost btn--danger" href="{% url 'siteadmin:invitation_delete' row.invitation.pk %}?next={{ request.get_full_path|urlencode }}%23invitees">Delete link<span class="visually-hidden"> for {{ row.invitation.label }}</span></a>
-            </div>
+            {% with next=request.get_full_path|add:"#invitees" %}{% include "siteadmin/invitation_actions.html" with invitation=row.invitation %}{% endwith %}
             {% endif %}
           </td>
         </tr>

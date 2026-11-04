@@ -64,6 +64,8 @@ class RsvpForm(forms.ModelForm):
             self.initial["attending"] = "yes" if self.instance.attending else "no"
             if not self.instance.attending:
                 self.initial["guests"] = 1
+            elif self.instance.guests > max_guests:
+                self.initial["guests"] = max_guests
 
     def clean_website(self):
         if self.cleaned_data.get("website"):

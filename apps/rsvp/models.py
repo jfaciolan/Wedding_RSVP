@@ -72,6 +72,12 @@ class Rsvp(TimeStampedModel):
     guests = models.PositiveSmallIntegerField(default=0)
     dietary = models.TextField("Dietary needs or allergies", blank=True)
     note = models.TextField("A note for the couple", blank=True)
+    reply_max_guests = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        editable=False,
+        help_text="The invitation's max guests when the guest last replied.",
+    )
 
     class Meta:
         ordering = ["-updated_at"]
@@ -83,3 +89,27 @@ class Rsvp(TimeStampedModel):
     @property
     def has_invite_link(self):
         return self.invitation_id is not None
+
+    @property
+    def over_max(self):
+        """Attending with more guests than the invitation now allows (max was lowered)."""
+        return bool(
+            self.attending and self.invitation_id and self.guests > self.invitation.max_guests
+        )
+
+    @property
+    def max_raised(self):
+        """Attending, and the invitation's max went up since the guest last replied."""
+        return bool(
+            self.attending
+            and self.invitation_id
+            and self.reply_max_guests is not None
+            and self.invitation.max_guests > self.reply_max_guests
+        )
+
+    @property
+    def allowed_guests(self):
+        """Guests that count: capped at the invitation's current max."""
+        if self.invitation_id:
+            return min(self.guests, self.invitation.max_guests)
+        return self.guests
